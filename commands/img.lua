@@ -1,3 +1,20 @@
+local link_preview = require "functions.link_preview"
+
+local function post_image(channel, url)
+    channel:add_message(c2.Message.new({
+        id = "inline-media",
+        flags = c2.MessageFlag.System,
+        elements = {
+            {
+                type = "image",
+                image = c2.Image.from_url(url, IMAGE_SCALE),
+                trailing_space = true,
+                flags = c2.MessageElementFlag.EmoteImage,
+            },
+        },
+    }))
+end
+
 c2.register_command("/img", function(ctx)
     -- get the arguments after the command
     -- start with an empty table
@@ -26,20 +43,24 @@ c2.register_command("/img", function(ctx)
     end
     ]] --
 
+    -- page links need the resolver first
+    -- anything else just gets loaded as is
+    if url:match("^https?://") and not link_preview.is_direct_image(url) then
+        link_preview.resolve(url, function(thumbnail)
+            if type(thumbnail) ~= "string" or thumbnail == "" then
+                ctx.channel:add_system_message(
+                    "No preview found for that link"
+                )
+                return
+            end
+            post_image(ctx.channel, thumbnail)
+        end)
+        return
+    end
+
     local scaled_url = url
         .. (url:find("?", 1, true) and "&" or "?")
         .. "chatterino_scale=" .. tostring(IMAGE_SCALE)
 
-    ctx.channel:add_message(c2.Message.new({
-        id = "inline-media",
-        flags = c2.MessageFlag.System,
-        elements = {
-            {
-                type = "image",
-                image = c2.Image.from_url(scaled_url, IMAGE_SCALE),
-                trailing_space = true,
-                flags = c2.MessageElementFlag.EmoteImage,
-            },
-        },
-    }))
+    post_image(ctx.channel, scaled_url)
 end)

@@ -38,7 +38,7 @@ git clone https://github.com/1e165/media-tools.git /path/to/chatterino/Plugins/m
 ## Planned features
 
 - [x] render images from messages automatically
-- [ ] use the chatterino's handler for images from more types of urls such as x.com, youtube etc.
+- [x] use the chatterino's handler for images from more types of urls such as x.com, youtube etc.
 - [ ] configurable web requests rate limiting
 - [ ] stream mode to enable whitelisting automatic image requests
 
